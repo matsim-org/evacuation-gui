@@ -3,3 +3,4 @@
 # evacuation-gui
 GUI application to perform evacuation simulations
 
+For details also see [Evacuation Tutorial](https://matsim.atlassian.net/wiki/spaces/MATPUB/pages/18317314/Evacuation+Tutorial)
