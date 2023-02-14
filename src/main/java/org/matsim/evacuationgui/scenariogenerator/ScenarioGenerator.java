@@ -23,6 +23,8 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
@@ -61,8 +63,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Evacuation scenario generator workflow: GIS Metaformat --> ScenarioGenertor -->

@@ -9,24 +9,31 @@
     <artifactId>evacuation-gui</artifactId>
     <version>0.1-SNAPSHOT</version>
     <name>evacuation-gui</name>
+    <description>MATSim Evacuation GUI</description>
 
     <repositories>
         <repository>
-            <id>geotools</id>
-            <name>Geotools repository</name>
-            <url>http://download.osgeo.org/webdav/geotools</url>
+            <id>osgeo</id>
+            <name>OSGeo Release Repository</name>
+            <url>https://repo.osgeo.org/repository/release/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
         <repository>
             <id>matsim</id>
-            <url>http://dl.bintray.com/matsim/matsim</url>
+            <url>https://repo.matsim.org/repository/matsim</url>
         </repository>
-        <repository>
-            <id>ojo-snapshots</id>
-            <url>http://oss.jfrog.org/libs-snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+<!--        <repository>-->
+<!--            <id>ojo-snapshots</id>-->
+<!--            <url>http://oss.jfrog.org/libs-snapshot</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
     </repositories>
     <dependencyManagement>
         <dependencies>
@@ -43,19 +50,24 @@
             <artifactId>swingx</artifactId>
             <version>1.6.1</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.swinglabs</groupId>-->
+<!--            <artifactId>swingx-ws</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swingx-ws</artifactId>
-            <version>1.0</version>
+            <groupId>org.jxmapviewer</groupId>
+            <artifactId>jxmapviewer2</artifactId>
+            <version>2.5</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-coverage</artifactId>
+            <artifactId>gt-epsg-extension</artifactId>
             <version>${geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
+            <artifactId>gt-referencing</artifactId>
             <version>${geotools.version}</version>
         </dependency>
         <dependency>
@@ -63,7 +75,6 @@
             <artifactId>gt-main</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
@@ -83,7 +94,7 @@
         <dependency>
             <groupId>org.matsim</groupId>
             <artifactId>matsim</artifactId>
-            <version>0.9.0</version>
+            <version>${matsim.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -99,18 +110,25 @@
 			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.8</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
             </plugin>
         </plugins>
     </build>
 
     <properties>
-        <geotools.version>14.0</geotools.version>
+        <geotools.version>28.1</geotools.version>
+        <matsim.version>14.0-SNAPSHOT</matsim.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
 </project>

@@ -28,8 +28,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EventListener;
 
-import org.jdesktop.swingx.mapviewer.GeoPosition;
-import org.jdesktop.swingx.mapviewer.TileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactory;
 import org.matsim.evacuationgui.control.Controller;
 import org.matsim.evacuationgui.control.JXMap;
 import org.matsim.evacuationgui.jxmapviewerhelper.TileFactoryBuilder;
@@ -65,7 +65,7 @@ public class JXMapRenderer extends AbstractSlippyMapRenderLayer {
 		mapViewer.setTileFactory(tileFactory);
 
 		mapViewer.setPanEnabled(true);
-		mapViewer.setZoomEnabled(true);
+//		mapViewer.setZoomEnabled(true);
 		mapViewer.setCenterPosition(new GeoPosition(controller
 				.getCenterPosition().getY(), controller.getCenterPosition()
 				.getX()));

@@ -20,13 +20,17 @@
 
 package org.matsim.evacuationgui.io;
 
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.geotools.factory.FactoryRegistryException;
+
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.util.factory.FactoryRegistryException;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Polygon;
 import org.matsim.evacuationgui.control.Controller;
 import org.matsim.evacuationgui.control.ShapeFactory;
 import org.matsim.evacuationgui.model.Constants;
@@ -39,14 +43,6 @@ import org.matsim.core.utils.gis.ShapeFileWriter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 /**
  * all i/o functions concerning shapes

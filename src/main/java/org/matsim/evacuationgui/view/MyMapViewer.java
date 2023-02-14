@@ -21,6 +21,8 @@
 package org.matsim.evacuationgui.view;
 
 
+import org.jxmapviewer.JXMapViewer;
+
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -30,7 +32,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import org.jdesktop.swingx.JXMapViewer;
 
 public class MyMapViewer extends JXMapViewer implements MouseListener, MouseWheelListener, KeyListener, MouseMotionListener {
 
