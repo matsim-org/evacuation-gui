@@ -28,7 +28,7 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.EventListener;
 
-import org.jdesktop.swingx.JXMapViewer;
+import org.jxmapviewer.JXMapViewer;
 import org.matsim.evacuationgui.view.renderer.JXMapRenderer;
 
 /**
