@@ -20,14 +20,17 @@
 
 package org.matsim.evacuationgui.evacuationareaselector;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.geotools.factory.FactoryRegistryException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
-import org.jdesktop.swingx.mapviewer.GeoPosition;
+import org.geotools.util.factory.FactoryRegistryException;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Polygon;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Node;
@@ -46,13 +49,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 public class ShapeToStreetSnapperThreadWrapper implements Runnable {
 

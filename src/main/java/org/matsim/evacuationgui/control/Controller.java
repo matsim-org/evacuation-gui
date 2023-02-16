@@ -21,7 +21,8 @@
 
 package org.matsim.evacuationgui.control;
 
-import com.vividsolutions.jts.geom.Envelope;
+
+import org.locationtech.jts.geom.Envelope;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;

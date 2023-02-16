@@ -23,6 +23,8 @@ package org.matsim.evacuationgui.control;
 import java.awt.geom.Point2D;
 
 import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import org.matsim.evacuationgui.control.algorithms.PolygonalCircleApproximation;
 import org.matsim.evacuationgui.model.shape.CircleShape;
 import org.matsim.evacuationgui.model.shape.PolygonShape;
@@ -31,9 +33,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * geometric functions for shapes

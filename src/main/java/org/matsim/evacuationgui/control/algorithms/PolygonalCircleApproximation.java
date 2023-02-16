@@ -21,14 +21,9 @@
 package org.matsim.evacuationgui.control.algorithms;
 
 import org.geotools.geometry.jts.JTS;
+import org.locationtech.jts.geom.*;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
 
 public abstract class PolygonalCircleApproximation {
 	private static final GeometryFactory geofac = new GeometryFactory();

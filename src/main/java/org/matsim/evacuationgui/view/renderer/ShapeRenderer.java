@@ -25,6 +25,8 @@ import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import org.matsim.evacuationgui.control.Controller;
 import org.matsim.evacuationgui.model.imagecontainer.ImageContainerInterface;
 import org.matsim.evacuationgui.model.shape.BoxShape;
@@ -33,9 +35,6 @@ import org.matsim.evacuationgui.model.shape.LineShape;
 import org.matsim.evacuationgui.model.shape.PolygonShape;
 import org.matsim.evacuationgui.model.shape.Shape;
 import org.matsim.evacuationgui.model.shape.Shape.DrawMode;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * shape renderer.

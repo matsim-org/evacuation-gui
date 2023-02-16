@@ -28,10 +28,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.locationtech.jts.geom.*;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Node;
+import org.matsim.core.router.DijkstraFactory;
 import org.matsim.evacuationgui.control.helper.Algorithms;
 import org.matsim.evacuationgui.control.helper.shapetostreetsnapper.LinkSorter;
 import org.matsim.evacuationgui.control.helper.shapetostreetsnapper.TravelCost;
@@ -44,13 +46,6 @@ import org.matsim.core.utils.collections.QuadTree;
 import org.matsim.core.utils.geometry.CoordUtils;
 import org.matsim.core.utils.geometry.geotools.MGC;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 public class ShapeToStreetSnapper {
 
@@ -96,7 +91,7 @@ public class ShapeToStreetSnapper {
         List<Node> nodes = getBoundaryNodes(p);
         FreeSpeedTravelTime fs = new FreeSpeedTravelTime();
         TravelDisutility cost = new TravelCost(p);
-        LeastCostPathCalculator dijkstra = new Dijkstra(this.sc.getNetwork(), cost, fs);
+        LeastCostPathCalculator dijkstra = new DijkstraFactory().createPathCalculator(this.sc.getNetwork(), cost, fs);
 
         List<Node> finalNodes = new ArrayList<Node>();
         for (int i = 1; i < nodes.size(); i++) {
