@@ -174,6 +174,7 @@ public class EvacuationNetworkGenerator {
     }
 
     private void createEvacuationNodsAndLinks(Collection<SimpleFeature> safePoints, String fromSystem, String toSystem) {
+        int counter = 1;
         for (SimpleFeature safePoint : safePoints) {
             Geometry safePointDefaultGeometry = (Geometry) safePoint.getDefaultGeometry();
 
@@ -185,11 +186,13 @@ public class EvacuationNetworkGenerator {
             }
 
             Coordinate cc1 = transformedSafePoint.getCoordinate();
+            cc1.x += 10000;
+            cc1.y += 0;
             Coord safeCoord1 = MGC.coordinate2Coord(cc1);
 
             Coordinate cc2 = transformedSafePoint.getCoordinate();
-            cc2.x += 10;
-            cc2.y += 10;
+            cc2.x += 10010;
+            cc2.y += 0;
             Coord safeCoord2 = MGC.coordinate2Coord(cc2);
 
             this.safeNodeAId = Id.createNodeId("en1_" + transformedSafePoint.getCoordinate().x);
@@ -201,7 +204,7 @@ public class EvacuationNetworkGenerator {
             this.network.addNode(safeNodeB);
 
             double capacity = 1000000.;
-            this.safeLinkId = Id.createLinkId(safeLinkId.toString() + "_" + transformedSafePoint.getCoordinate().y);
+            this.safeLinkId = Id.createLinkId(safeLinkId.toString() + "_" + counter++);
             Link l = this.network.getFactory().createLink(this.safeLinkId, safeNodeA, safeNodeB);
             l.setLength(10);
             l.setFreespeed(100000);
