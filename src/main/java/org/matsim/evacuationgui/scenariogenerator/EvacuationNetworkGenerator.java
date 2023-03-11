@@ -19,14 +19,9 @@
  * *********************************************************************** */
 package org.matsim.evacuationgui.scenariogenerator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.apache.log4j.Logger;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
@@ -40,8 +35,6 @@ import org.matsim.api.core.v01.network.Node;
 import org.matsim.core.network.algorithms.NetworkCleaner;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 
 /**
@@ -55,9 +48,6 @@ public class EvacuationNetworkGenerator {
 
     private Geometry evacuationArea;
 
-    private final Collection<SimpleFeature> safePoints;
-    private final String fromSafePointSystem;
-    private final String toSafePointSystem;
     private Network network;
 
     private final HashSet<Link> redundantLinks = new HashSet<Link>();
@@ -70,19 +60,7 @@ public class EvacuationNetworkGenerator {
 
     private Id<Link> safeLinkId;
 
-    public EvacuationNetworkGenerator(Scenario sc, Geometry evavcuationArea, Id<Link> safeLinkId,  Collection<SimpleFeature> safePoints, String fromSafePointSystem, String toSafePointSystem) {
-        this.evacuationArea = evavcuationArea;//.buffer(4000);
-        this.network = sc.getNetwork();
-        this.safePoints = safePoints;
-        this.fromSafePointSystem = fromSafePointSystem;
-        this.toSafePointSystem = toSafePointSystem;
-//        this.safeNodeAId = Id.create("en1", Node.class);
-//        this.safeNodeBId = Id.create("en2", Node.class);
-        this.safeLinkId = safeLinkId;
-    }
-
     public EvacuationNetworkGenerator(Scenario sc, Geometry evavcuationArea, Id<Link> safeLinkId) {
-        this(sc, evavcuationArea, safeLinkId, null, "", "");
         this.evacuationArea = evavcuationArea;//.buffer(4000);
         this.network = sc.getNetwork();
         this.safeNodeAId = Id.create("en1", Node.class);
@@ -102,14 +80,14 @@ public class EvacuationNetworkGenerator {
         log.info("done.");
     }
 
-    public void run(Collection<SimpleFeature> safePoints, String fromSafePointSystem, String toSafePointSystem) {
+    public void run(Map<Id<Link>, Geometry> safePoints) {
         log.info("generating evacuation net ...");
         log.info("pre-cleaning network");
         preClean();
         log.info("classifing nodes");
         classifyNodesAndLinks();
         log.info("creating evacuation nodes and links");
-        createEvacuationNodsAndLinks(safePoints, fromSafePointSystem, toSafePointSystem);
+        createEvacuationNodsAndLinks(safePoints);
         log.info("removing links and nodes that are outside the evacuation area");
         //cleanUpNetwork();
         log.info("done.");
@@ -173,30 +151,17 @@ public class EvacuationNetworkGenerator {
         }
     }
 
-    private void createEvacuationNodsAndLinks(Collection<SimpleFeature> safePoints, String fromSystem, String toSystem) {
-        int counter = 1;
-        for (SimpleFeature safePoint : safePoints) {
-            Geometry safePointDefaultGeometry = (Geometry) safePoint.getDefaultGeometry();
+    private void createEvacuationNodsAndLinks(Map<Id<Link>, Geometry> safePoints) {
+        for (Map.Entry<Id<Link>, Geometry> safePoint: safePoints.entrySet()) {
 
-            Geometry transformedSafePoint;
-            try {
-                transformedSafePoint = JTS.transform(safePointDefaultGeometry, CRS.findMathTransform(MGC.getCRS(fromSystem), MGC.getCRS(toSystem), true));
-            } catch (TransformException | FactoryException e) {
-                throw new RuntimeException("Transformation isn't successful" + e);
-            }
-
-            Coordinate cc1 = transformedSafePoint.getCoordinate();
-            cc1.x += 10000;
-            cc1.y += 0;
+            Coordinate cc1 = safePoint.getValue().getCoordinate();
             Coord safeCoord1 = MGC.coordinate2Coord(cc1);
 
-            Coordinate cc2 = transformedSafePoint.getCoordinate();
-            cc2.x += 10010;
-            cc2.y += 0;
+            Coordinate cc2 = safePoint.getValue().getCoordinate();
             Coord safeCoord2 = MGC.coordinate2Coord(cc2);
 
-            this.safeNodeAId = Id.createNodeId("en1_" + transformedSafePoint.getCoordinate().x);
-            this.safeNodeBId = Id.createNodeId("en2_" + transformedSafePoint.getCoordinate().y);
+            this.safeNodeAId = Id.createNodeId("en1_" + safePoint.getValue().getCoordinate());
+            this.safeNodeBId = Id.createNodeId("en2_" + safePoint.getValue().getCoordinate());
 
             Node safeNodeA = this.network.getFactory().createNode(this.safeNodeAId, safeCoord1);
             this.network.addNode(safeNodeA);
@@ -204,7 +169,7 @@ public class EvacuationNetworkGenerator {
             this.network.addNode(safeNodeB);
 
             double capacity = 1000000.;
-            this.safeLinkId = Id.createLinkId(safeLinkId.toString() + "_" + counter++);
+            this.safeLinkId = safePoint.getKey();
             Link l = this.network.getFactory().createLink(this.safeLinkId, safeNodeA, safeNodeB);
             l.setLength(10);
             l.setFreespeed(100000);
@@ -217,7 +182,7 @@ public class EvacuationNetworkGenerator {
                 Id<Node> nodeId = node.getId();
                 // && !nodeId.equals(this.safeNodeAId) && !nodeId.equals(this.safeNodeBId)) {
                 if (this.safeNodes.contains(node) && !nodeId.equals(this.safeNodeAId) && !nodeId.equals(this.safeNodeBId)) {
-                    String sLinkID = "el" + linkId++ + transformedSafePoint.getCoordinate().x;
+                    String sLinkID = "el_" + linkId++ + "_" + this.safeLinkId;
                     Link l2 = this.network.getFactory().createLink(Id.create(sLinkID, Link.class), node, safeNodeA);
                     l2.setLength(10);
                     l2.setFreespeed(100000);
