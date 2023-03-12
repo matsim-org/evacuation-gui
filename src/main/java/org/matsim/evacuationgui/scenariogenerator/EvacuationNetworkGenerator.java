@@ -19,9 +19,7 @@
  * *********************************************************************** */
 package org.matsim.evacuationgui.scenariogenerator;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.locationtech.jts.geom.Coordinate;
@@ -36,6 +34,7 @@ import org.matsim.api.core.v01.network.NetworkFactory;
 import org.matsim.api.core.v01.network.Node;
 import org.matsim.core.network.algorithms.NetworkCleaner;
 import org.matsim.core.utils.geometry.geotools.MGC;
+import org.opengis.feature.simple.SimpleFeature;
 
 
 /**
@@ -47,18 +46,26 @@ public class EvacuationNetworkGenerator {
 
     private static final Logger log = Logger.getLogger(EvacuationNetworkGenerator.class);
 
-    private final Geometry evacuationArea;
-    private final Network network;
+    private Geometry evacuationArea;
+
+    private Network network;
 
     private final HashSet<Link> redundantLinks = new HashSet<Link>();
     private final HashSet<Node> safeNodes = new HashSet<Node>();
     private final HashSet<Node> redundantNodes = new HashSet<Node>();
 
-    private final Id<Node> safeNodeAId;
+    private Id<Node> safeNodeAId;
 
-    private final Id<Node> safeNodeBId;
+    private Id<Node> safeNodeBId;
 
-    private final Id<Link> safeLinkId;
+    private final Collection<Id<Node>> safeNodeBIds = new ArrayList<>();
+
+    public Collection<Id<Node>> getSafeNodeAIds() {
+        return safeNodeAIds;
+    }
+
+    private final Collection<Id<Node>> safeNodeAIds = new ArrayList<>();
+    private Id<Link> safeLinkId;
 
     public EvacuationNetworkGenerator(Scenario sc, Geometry evavcuationArea, Id<Link> safeLinkId) {
         this.evacuationArea = evavcuationArea;//.buffer(4000);
@@ -67,7 +74,6 @@ public class EvacuationNetworkGenerator {
         this.safeNodeBId = Id.create("en2", Node.class);
         this.safeLinkId = safeLinkId;
     }
-
     public void run() {
         log.info("generating evacuation net ...");
         log.info("pre-cleaning network");
@@ -76,6 +82,19 @@ public class EvacuationNetworkGenerator {
         classifyNodesAndLinks();
         log.info("creating evacuation nodes and links");
         createEvacuationNodsAndLinks();
+        log.info("removing links and nodes that are outside the evacuation area");
+        cleanUpNetwork();
+        log.info("done.");
+    }
+
+    public void run(Map<Id<Link>, Geometry> safePoints) {
+        log.info("generating evacuation net ...");
+        log.info("pre-cleaning network");
+        preClean();
+        log.info("classifing nodes");
+        classifyNodesAndLinks();
+        log.info("creating evacuation nodes and links");
+        createEvacuationNodsAndLinks(safePoints);
         log.info("removing links and nodes that are outside the evacuation area");
         cleanUpNetwork();
         log.info("done.");
@@ -112,8 +131,10 @@ public class EvacuationNetworkGenerator {
 
         Node safeNodeA = this.network.getFactory().createNode(this.safeNodeAId, safeCoord1);
         this.network.addNode(safeNodeA);
+        this.safeNodeAIds.add(this.safeNodeAId);
         Node safeNodeB = this.network.getFactory().createNode(this.safeNodeBId, safeCoord2);
         this.network.addNode(safeNodeB);
+        this.safeNodeBIds.add(this.safeNodeBId);
 
         double capacity = 1000000.;
         Link l = this.network.getFactory().createLink(this.safeLinkId, safeNodeA, safeNodeB);
@@ -135,6 +156,51 @@ public class EvacuationNetworkGenerator {
                 l2.setCapacity(capacity);
                 l2.setNumberOfLanes(1);
                 this.network.addLink(l2);
+            }
+        }
+    }
+
+    private void createEvacuationNodsAndLinks(Map<Id<Link>, Geometry> safePoints) {
+        for (Map.Entry<Id<Link>, Geometry> safePoint: safePoints.entrySet()) {
+
+            Coordinate cc1 = safePoint.getValue().getCoordinate();
+            Coord safeCoord1 = MGC.coordinate2Coord(cc1);
+
+            Coordinate cc2 = safePoint.getValue().getCoordinate();
+            Coord safeCoord2 = MGC.coordinate2Coord(cc2);
+
+            this.safeNodeAId = Id.createNodeId("en1_" + safePoint.getValue().getCoordinate());
+            this.safeNodeBId = Id.createNodeId("en2_" + safePoint.getValue().getCoordinate());
+
+            Node safeNodeA = this.network.getFactory().createNode(this.safeNodeAId, safeCoord1);
+            this.network.addNode(safeNodeA);
+            this.safeNodeAIds.add(this.safeNodeAId);
+            Node safeNodeB = this.network.getFactory().createNode(this.safeNodeBId, safeCoord2);
+            this.network.addNode(safeNodeB);
+            this.safeNodeBIds.add(safeNodeBId);
+
+            double capacity = 1000000.;
+            this.safeLinkId = safePoint.getKey();
+            Link l = this.network.getFactory().createLink(this.safeLinkId, safeNodeA, safeNodeB);
+            l.setLength(10);
+            l.setFreespeed(100000);
+            l.setCapacity(capacity);
+            l.setNumberOfLanes(100);
+            this.network.addLink(l);
+
+            int linkId = 1;
+            for (Node node : this.network.getNodes().values()) {
+                Id<Node> nodeId = node.getId();
+                // && !nodeId.equals(this.safeNodeAId) && !nodeId.equals(this.safeNodeBId)) {
+                if (this.safeNodes.contains(node) && !nodeId.equals(this.safeNodeAId) && !nodeId.equals(this.safeNodeBId)) {
+                    String sLinkID = "el_" + linkId++ + "_" + this.safeLinkId;
+                    Link l2 = this.network.getFactory().createLink(Id.create(sLinkID, Link.class), node, safeNodeA);
+                    l2.setLength(10);
+                    l2.setFreespeed(100000);
+                    l2.setCapacity(capacity);
+                    l2.setNumberOfLanes(1);
+                    this.network.addLink(l2);
+                }
             }
         }
     }
@@ -230,12 +296,14 @@ public class EvacuationNetworkGenerator {
         log.info("adding dummy links");
         List<Link> dummies = new ArrayList<Link>();
         int dCnt = 0;
-        for (Node n : this.network.getNodes().values()) {
-            if (!this.safeNodes.contains(n) && !this.redundantNodes.contains(n)) {
-                NetworkFactory fac = this.network.getFactory();
-                Link l = fac.createLink(Id.create("dummy" + dCnt++, Link.class), this.network.getNodes().get(this.safeNodeBId), n);
-                this.network.addLink(l);
-                dummies.add(l);
+        for (Id<Node> safeNodeBIdFromCollection: this.safeNodeBIds) {
+            for (Node n : this.network.getNodes().values()) {
+                if (!this.safeNodes.contains(n) && !this.redundantNodes.contains(n)) {
+                    NetworkFactory fac = this.network.getFactory();
+                    Link l = fac.createLink(Id.create("dummy" + dCnt++, Link.class), this.network.getNodes().get(safeNodeBIdFromCollection), n);
+                    this.network.addLink(l);
+                    dummies.add(l);
+                }
             }
         }
         new NetworkCleaner().run(this.network);
