@@ -58,6 +58,8 @@ public class EvacuationNetworkGenerator {
 
     private Id<Node> safeNodeBId;
 
+    private final Collection<Id<Node>> safeNodeBIds = new ArrayList<>();
+
     private Id<Link> safeLinkId;
 
     public EvacuationNetworkGenerator(Scenario sc, Geometry evavcuationArea, Id<Link> safeLinkId) {
@@ -89,7 +91,7 @@ public class EvacuationNetworkGenerator {
         log.info("creating evacuation nodes and links");
         createEvacuationNodsAndLinks(safePoints);
         log.info("removing links and nodes that are outside the evacuation area");
-        //cleanUpNetwork();
+        cleanUpNetwork();
         log.info("done.");
     }
 
@@ -126,6 +128,7 @@ public class EvacuationNetworkGenerator {
         this.network.addNode(safeNodeA);
         Node safeNodeB = this.network.getFactory().createNode(this.safeNodeBId, safeCoord2);
         this.network.addNode(safeNodeB);
+        this.safeNodeBIds.add(this.safeNodeBId);
 
         double capacity = 1000000.;
         Link l = this.network.getFactory().createLink(this.safeLinkId, safeNodeA, safeNodeB);
@@ -167,6 +170,7 @@ public class EvacuationNetworkGenerator {
             this.network.addNode(safeNodeA);
             Node safeNodeB = this.network.getFactory().createNode(this.safeNodeBId, safeCoord2);
             this.network.addNode(safeNodeB);
+            this.safeNodeBIds.add(safeNodeBId);
 
             double capacity = 1000000.;
             this.safeLinkId = safePoint.getKey();
@@ -285,12 +289,14 @@ public class EvacuationNetworkGenerator {
         log.info("adding dummy links");
         List<Link> dummies = new ArrayList<Link>();
         int dCnt = 0;
-        for (Node n : this.network.getNodes().values()) {
-            if (!this.safeNodes.contains(n) && !this.redundantNodes.contains(n)) {
-                NetworkFactory fac = this.network.getFactory();
-                Link l = fac.createLink(Id.create("dummy" + dCnt++, Link.class), this.network.getNodes().get(this.safeNodeBId), n);
-                this.network.addLink(l);
-                dummies.add(l);
+        for (Id<Node> safeNodeBIdFromCollection: this.safeNodeBIds) {
+            for (Node n : this.network.getNodes().values()) {
+                if (!this.safeNodes.contains(n) && !this.redundantNodes.contains(n)) {
+                    NetworkFactory fac = this.network.getFactory();
+                    Link l = fac.createLink(Id.create("dummy" + dCnt++, Link.class), this.network.getNodes().get(safeNodeBIdFromCollection), n);
+                    this.network.addLink(l);
+                    dummies.add(l);
+                }
             }
         }
         new NetworkCleaner().run(this.network);
