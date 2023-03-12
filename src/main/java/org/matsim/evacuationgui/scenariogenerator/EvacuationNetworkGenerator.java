@@ -60,6 +60,11 @@ public class EvacuationNetworkGenerator {
 
     private final Collection<Id<Node>> safeNodeBIds = new ArrayList<>();
 
+    public Collection<Id<Node>> getSafeNodeAIds() {
+        return safeNodeAIds;
+    }
+
+    private final Collection<Id<Node>> safeNodeAIds = new ArrayList<>();
     private Id<Link> safeLinkId;
 
     public EvacuationNetworkGenerator(Scenario sc, Geometry evavcuationArea, Id<Link> safeLinkId) {
@@ -126,6 +131,7 @@ public class EvacuationNetworkGenerator {
 
         Node safeNodeA = this.network.getFactory().createNode(this.safeNodeAId, safeCoord1);
         this.network.addNode(safeNodeA);
+        this.safeNodeAIds.add(this.safeNodeAId);
         Node safeNodeB = this.network.getFactory().createNode(this.safeNodeBId, safeCoord2);
         this.network.addNode(safeNodeB);
         this.safeNodeBIds.add(this.safeNodeBId);
@@ -168,6 +174,7 @@ public class EvacuationNetworkGenerator {
 
             Node safeNodeA = this.network.getFactory().createNode(this.safeNodeAId, safeCoord1);
             this.network.addNode(safeNodeA);
+            this.safeNodeAIds.add(this.safeNodeAId);
             Node safeNodeB = this.network.getFactory().createNode(this.safeNodeBId, safeCoord2);
             this.network.addNode(safeNodeB);
             this.safeNodeBIds.add(safeNodeBId);
